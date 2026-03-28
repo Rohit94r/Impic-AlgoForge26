@@ -1,0 +1,16 @@
+import { auth } from "@/auth";
+import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+
+export default auth((req) => {
+  if (!req.auth) {
+    const url = new URL("/auth/signin", req.nextUrl.origin);
+    url.searchParams.set("callbackUrl", req.nextUrl.href);
+    return NextResponse.redirect(url);
+  }
+});
+
+export const config = {
+  matcher: ["/dashboard/:path*"],
+};
