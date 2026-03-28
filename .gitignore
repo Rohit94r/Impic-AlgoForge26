@@ -33,6 +33,7 @@ pnpm-debug.log*
 
 # env files
 .env*.local
+.env.python
 services/*/.env
 
 # typescript

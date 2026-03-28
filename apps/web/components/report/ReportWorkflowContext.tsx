@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
 import type { AnalysisResult, CaseData } from "@/components/report/types";
 import { buildCaseRef } from "@/components/report/utils";
 
@@ -39,7 +38,6 @@ export function ReportWorkflowProvider({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
 
   const [caseData, setCaseData] = useState<CaseData | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -53,7 +51,8 @@ export function ReportWorkflowProvider({
   const [isSaving, setIsSaving] = useState(false);
   const [isCaseSaved, setIsCaseSaved] = useState(false);
 
-  const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+  // No auth — treat every visitor as an anonymous user.
+  const sessionUserId: string | undefined = undefined;
 
   useEffect(() => {
     if (!caseId) return;
@@ -79,7 +78,6 @@ export function ReportWorkflowProvider({
 
         const aRes = await fetch(`${API_URL}/api/analysis/${caseId}/result`);
         if (!aRes.ok) {
-          // Case is still openable without a computed analysis result.
           setAnalysis(null);
           return;
         }
@@ -95,17 +93,7 @@ export function ReportWorkflowProvider({
   }, [caseId]);
 
   useEffect(() => {
-    if (!sessionUserId) return;
-    fetch(`/api/user/cases?caseId=${caseId}`)
-      .then((r) => r.json())
-      .then((d: { saved: boolean }) => setIsCaseSaved(d.saved))
-      .catch(() => {
-        /* silent */
-      });
-  }, [sessionUserId, caseId]);
-
-  useEffect(() => {
-    if (!sessionUserId || searchParams.get("autosave") !== "1" || !caseData) return;
+    if (searchParams.get("autosave") !== "1" || !caseData) return;
     if (caseData.pipeline_type !== "ncii" && !analysis) return;
 
     setIsSaving(true);
@@ -123,7 +111,7 @@ export function ReportWorkflowProvider({
         router.replace(`/report/${caseId}/analysis`, { scroll: false });
       })
       .finally(() => setIsSaving(false));
-  }, [sessionUserId, searchParams, caseData, analysis, caseId, router]);
+  }, [searchParams, caseData, analysis, caseId, router]);
 
   function copyHash() {
     if (!analysis) return;
@@ -135,19 +123,13 @@ export function ReportWorkflowProvider({
 
   async function handleSendMagicLink(e: React.FormEvent) {
     e.preventDefault();
-    if (!saveEmail.trim()) return;
-    setIsSaving(true);
-    await signIn("nodemailer", {
-      email: saveEmail,
-      callbackUrl: `/report/${caseId}/analysis?autosave=1`,
-      redirect: false,
-    });
+    // Auth removed — nothing to do.
     setSaveSent(true);
-    setIsSaving(false);
+    void saveEmail;
   }
 
   async function handleSaveCase() {
-    if (!sessionUserId || !caseData) return;
+    if (!caseData) return;
     if (caseData.pipeline_type !== "ncii" && !analysis) return;
 
     setIsSaving(true);

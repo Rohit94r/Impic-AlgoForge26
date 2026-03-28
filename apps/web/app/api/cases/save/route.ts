@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import clientPromise from "@/lib/mongodb";
 import { recordClaimEvent } from "@/lib/claim-tracker";
 
@@ -10,13 +9,6 @@ interface SaveBody {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-
-  if (!(session?.user as { id?: string } | undefined)?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = (session!.user as { id: string }).id;
   const body = (await req.json()) as SaveBody;
   const { caseId, domain, caseRef } = body;
 
@@ -29,7 +21,6 @@ export async function POST(req: NextRequest) {
   const createdAtSec = Math.floor(now.getTime() / 1000);
   const col = client.db("snifferX").collection("cases");
 
-  // Upsert the case shell if needed and mark this user as having saved it.
   await col.updateOne(
     { case_id: caseId },
     {
@@ -48,9 +39,6 @@ export async function POST(req: NextRequest) {
         anonymous: true,
         no_further_tracking: false,
       },
-      $addToSet: {
-        saved_by_users: userId,
-      },
     },
     { upsert: true },
   );
@@ -60,9 +48,7 @@ export async function POST(req: NextRequest) {
     caseId,
     platformSource: domain ?? undefined,
     source: "api",
-  }).catch(() => {
-    // Saving a case should succeed even if metrics tracking fails
-  });
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

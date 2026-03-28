@@ -1,27 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import clientPromise from "@/lib/mongodb";
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  const userId = (session?.user as { id?: string } | undefined)?.id;
-
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const client = await clientPromise;
   const col = client.db("snifferX").collection("cases");
   const url = new URL(req.url);
   const caseId = url.searchParams.get("caseId");
 
   if (caseId) {
-    // Single-case saved check
-    const doc = await col.findOne({ case_id: caseId, saved_by_users: userId });
+    const doc = await col.findOne({ case_id: caseId });
     return NextResponse.json({ saved: !!doc });
   }
 
-  // All cases for this user
+  // All cases
   const cases = await col
     .find(
       { saved_by_users: userId },
@@ -40,7 +31,7 @@ export async function GET(req: NextRequest) {
     .sort({ last_saved_at: -1, updated_at: -1, created_at: -1 })
     .toArray();
 
-  const normalized = cases.map((doc) => {
+  const normalized = cases.map((doc: Record<string, unknown>) => {
     const rawSavedAt = doc.last_saved_at ?? doc.updated_at ?? doc.created_at ?? null;
     const savedAt =
       rawSavedAt instanceof Date
@@ -63,13 +54,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await auth();
-  const userId = (session?.user as { id?: string } | undefined)?.id;
-
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const url = new URL(req.url);
   const caseId = url.searchParams.get("caseId");
 
@@ -78,18 +62,10 @@ export async function DELETE(req: NextRequest) {
   }
 
   const client = await clientPromise;
-  const updateDoc: Record<string, unknown> = {
-    $pull: { saved_by_users: userId },
-    $set: { updated_at: new Date() },
-  };
-
   await client
     .db("snifferX")
     .collection("cases")
-    .updateOne(
-      { case_id: caseId },
-      updateDoc,
-    );
+    .deleteOne({ case_id: caseId });
 
   return NextResponse.json({ ok: true });
 }

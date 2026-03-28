@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import clientPromise from "@/lib/mongodb";
 
 const LIFECYCLE_EVENT_TYPES = [
@@ -56,13 +55,6 @@ function addPercentages(items: { name: string; count: number }[], total: number)
 }
 
 export async function GET() {
-  const session = await auth();
-  const userId = (session?.user as { id?: string } | undefined)?.id;
-
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     const client = await clientPromise;
     const db = client.db("snifferX");
@@ -83,7 +75,7 @@ export async function GET() {
       lifecycleRaw,
     ] = await Promise.all([
       casesCol.countDocuments(),
-      casesCol.countDocuments({ saved_by_users: userId }),
+      casesCol.countDocuments({}),
       metricsCol.findOne({ key: "global" }, { projection: { _id: 0 } }),
       casesCol
         .aggregate<{ _id: string | null; count: number }>([

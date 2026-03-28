@@ -1,28 +1,24 @@
 import { MongoClient } from "mongodb";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Missing environment variable: "MONGODB_URI"');
-}
+const uri = process.env.MONGODB_URI ?? "";
 
-const uri = process.env.MONGODB_URI;
-
-let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (process.env.NODE_ENV === "development") {
-  // In development use a global variable so the MongoClient is not
-  // re-created on every module reload caused by HMR.
+if (!uri) {
+  // Return a promise that rejects clearly instead of throwing at import time.
+  clientPromise = Promise.reject(
+    new Error("MONGODB_URI is not set. Add it to apps/web/.env.local"),
+  );
+} else if (process.env.NODE_ENV === "development") {
   const globalWithMongo = global as typeof globalThis & {
     _mongoClientPromise?: Promise<MongoClient>;
   };
   if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri);
-    globalWithMongo._mongoClientPromise = client.connect();
+    globalWithMongo._mongoClientPromise = new MongoClient(uri).connect();
   }
   clientPromise = globalWithMongo._mongoClientPromise;
 } else {
-  client = new MongoClient(uri);
-  clientPromise = client.connect();
+  clientPromise = new MongoClient(uri).connect();
 }
 
 export default clientPromise;

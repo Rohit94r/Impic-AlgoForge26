@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PlatformDistribution } from "@/components/dashboard/PlatformDistribution";
@@ -103,15 +102,12 @@ function eventLabel(eventType: string): string {
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
   const [cases, setCases] = useState<SavedCase[]>([]);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [loadingCases, setLoadingCases] = useState(true);
   const [loadingOverview, setLoadingOverview] = useState(true);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-
     fetch("/api/user/cases")
       .then((r) => r.json())
       .then((d: { cases: SavedCase[] }) => {
@@ -127,15 +123,7 @@ export default function DashboardPage() {
         setLoadingOverview(false);
       })
       .catch(() => setLoadingOverview(false));
-  }, [status]);
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-[#fafaf8] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#e8e4de] border-t-[#0a0a0a] rounded-full animate-spin" />
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#fafaf8]">
@@ -149,17 +137,12 @@ export default function DashboardPage() {
         <span className="text-[#d4cfc9]">/</span>
         <span className="text-[13px] text-[#9ca3af]">Case Intelligence</span>
         <div className="ml-auto flex items-center gap-3">
-          {session?.user?.email && (
-            <span className="hidden sm:block text-[12px] text-[#9ca3af] font-mono truncate max-w-50">
-              {session.user.email}
-            </span>
-          )}
-          <button
-            onClick={() => signOut({ callbackUrl: "/" })}
+          <Link
+            href="/"
             className="text-[12px] text-[#9ca3af] hover:text-[#0a0a0a] transition-colors border border-[#e8e4de] px-3 py-1.5 rounded-lg"
           >
-            Sign out
-          </button>
+            Home
+          </Link>
         </div>
       </header>
 
