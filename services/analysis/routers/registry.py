@@ -2,8 +2,12 @@ from fastapi import APIRouter, File, UploadFile, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 import hashlib
+import io
 import time
 import uuid
+
+import imagehash
+from PIL import Image
 
 router = APIRouter()
 
@@ -50,8 +54,9 @@ async def register_image(original_image: UploadFile = File(...)):
         if entry["file_hash"] == file_hash:
             return entry
 
-    # Perceptual fingerprint placeholder — replace with imagehash.phash() in production
-    fingerprint = hashlib.md5(file_bytes).hexdigest()
+    # Perceptual hash — robust to minor re-encodes, resizes, and colour tweaks
+    pil_img = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+    fingerprint = str(imagehash.phash(pil_img))
 
     reference_id = str(uuid.uuid4())
     entry = {

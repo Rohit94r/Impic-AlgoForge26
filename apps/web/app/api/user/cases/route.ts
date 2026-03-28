@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   // All cases
   const cases = await col
     .find(
-      { saved_by_users: userId },
+      {},
       {
         projection: {
           _id: 0,
