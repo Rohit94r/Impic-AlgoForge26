@@ -4,9 +4,9 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { DropZone } from "@/components/upload/DropZone";
-import { AnalysisOverlay } from "@/components/upload/AnalysisOverlay";
 import { ReferenceQuestion } from "@/components/upload/ReferenceQuestion";
 import { ReferenceUploadPhase } from "@/components/upload/ReferenceUploadPhase";
+import { AnalysisLoader } from "@/components/dashboard/AnalysisLoader";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -162,7 +162,14 @@ function UploadContent() {
         <span className="font-mono text-[12px] text-[#9ca3af]">{caseId.slice(0, 8).toUpperCase()}</span>
       </header>
 
-      {phase === "analyzing" && <AnalysisOverlay step={analysisStep} steps={ANALYSIS_STEPS} />}
+      {phase === "analyzing" && (
+        <AnalysisLoader 
+          image={suspiciousPreview || ""} 
+          onComplete={() => {
+            // Animation finished
+          }}
+        />
+      )}
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
         {/* Phase 1: Upload suspicious image */}

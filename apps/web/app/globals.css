@@ -158,3 +158,42 @@
 .hero-illustration-enter {
   animation: hero-illustration-enter 0.75s ease-out 0.15s both;
 }
+
+/* ── Forensic Analysis UI ── */
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(500%); }
+}
+
+@keyframes glitch-skew {
+  0%, 100% { transform: skew(0deg); }
+  20% { transform: skew(3deg); }
+  40% { transform: skew(-3deg); }
+  60% { transform: skew(1deg); }
+  80% { transform: skew(-1deg); }
+}
+
+@keyframes rgb-shift {
+  0%, 100% { text-shadow: 2px 0 0 #ff00ff, -2px 0 0 #00ffff; }
+  25% { text-shadow: -2px 0 0 #ff00ff, 2px 0 0 #00ffff; }
+  50% { text-shadow: 2px 2px 0 #ff00ff, -2px -2px 0 #00ffff; }
+  75% { text-shadow: -2px -2px 0 #ff00ff, 2px 2px 0 #00ffff; }
+}
+
+.animate-scan-line {
+  animation: scan-line 4s linear infinite;
+}
+
+.animate-glitch-skew {
+  animation: glitch-skew 0.5s ease-in-out infinite;
+}
+
+.animate-rgb-shift {
+  animation: rgb-shift 0.2s linear infinite;
+}
+
+.bg-grid-white\/\[0\.02\] {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
