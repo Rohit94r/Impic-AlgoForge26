@@ -25,10 +25,10 @@ export function HeroSection() {
       />
 
       {/* Two-column grid */}
-      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-64px)] max-w-7xl grid-cols-1 items-center pt-20 pb-20 lg:grid-cols-[1fr_420px]">
+      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-72px)] w-full max-w-[1200px] grid-cols-1 items-center px-4 pt-20 pb-16 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(460px,40%)] lg:gap-10 lg:px-8 lg:pt-24 lg:pb-20">
 
         {/* Left copy */}
-        <div className="flex flex-col justify-center px-4 sm:px-8 py-16 xl:px-16 lg:py-0">
+        <div className="flex flex-col justify-center py-10 lg:py-0">
 
           {/* Ornament */}
           <div aria-hidden="true" className="mb-6 flex items-center gap-3 opacity-50">
@@ -58,7 +58,7 @@ export function HeroSection() {
           </h1>
 
           {/* Sub-copy */}
-          <p className="mb-8 max-w-md text-[17px] leading-[1.7] text-[#6b7280]">
+          <p className="mb-8 max-w-xl text-[17px] leading-[1.7] text-[#6b7280]">
             {t.hero.body}
           </p>
 
@@ -92,19 +92,14 @@ export function HeroSection() {
         </div>
 
         {/* Right illustration */}
-        <div className="relative hidden h-full lg:block">
+        <div className="relative hidden h-full min-h-[560px] overflow-hidden rounded-l-[48px] lg:block">
           <Image
             src="/illustration.png"
             alt="Split-face: authentic photo left, deepfake forensic breakdown right"
             fill
             priority
-            className="object-cover object-[50%_6%]"
-          />
-          {/* right fade */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10"
-            style={{ background: "linear-gradient(to right, transparent, #fff)" }}
+            sizes="(min-width: 1280px) 38vw, (min-width: 1024px) 40vw, 100vw"
+            className="object-cover object-[90%_14%] scale-[1.1]"
           />
           {/* bottom fade */}
           <div
