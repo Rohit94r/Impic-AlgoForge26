@@ -1,11 +1,12 @@
+import hashlib
 import threading
 import time
 from typing import Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from typing import Optional
 
 from engine.discovery import run_discovery_scan
+from engine.ela import run_ela
 from engine.models import AnalysisResult, DiscoveryResult
 from engine.pipeline import run_pipeline
 
@@ -25,6 +26,7 @@ async def run_analysis(
     case_id: str,
     suspicious_image: UploadFile = File(...),
     reference_image: Optional[UploadFile] = File(None),
+    evidence_image: Optional[UploadFile] = File(None),
 ):
     if suspicious_image.content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(
@@ -43,12 +45,38 @@ async def run_analysis(
     if reference_image is not None:
         reference_bytes = await reference_image.read()
 
+    evidence_bytes: bytes | None = None
+    if evidence_image is not None and evidence_image.content_type in ALLOWED_MIME_TYPES:
+        evidence_bytes = await evidence_image.read()
+        if len(evidence_bytes) > MAX_FILE_SIZE:
+            evidence_bytes = None  # silently skip oversized evidence
+
     result = run_pipeline(
         case_id=case_id,
         suspicious_bytes=suspicious_bytes,
         suspicious_mime=suspicious_image.content_type or "image/jpeg",
         reference_bytes=reference_bytes,
     )
+
+    # Run lightweight ELA + hash analysis on supporting evidence if provided
+    if evidence_bytes:
+        try:
+            ela = run_ela(evidence_bytes)
+            sha256 = hashlib.sha256(evidence_bytes).hexdigest()
+            result.supporting_evidence = {
+                "sha256": sha256,
+                "ela_mean_residual": ela.ela_mean_residual,
+                "ela_flagged": ela.ela_flagged,
+                "ela_heatmap": ela.ela_heatmap,
+                "manipulation_note": (
+                    "Possible editing artifacts detected in supporting evidence."
+                    if ela.ela_flagged
+                    else "No obvious editing artifacts detected in supporting evidence."
+                ),
+                "used_as": "Supporting evidence for this case",
+            }
+        except Exception:
+            pass  # Evidence analysis is additive — never fail the main result
 
     _results[case_id] = result.model_dump()
     return result

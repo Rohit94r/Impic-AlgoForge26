@@ -343,13 +343,13 @@ export default function DashboardPage() {
         <section className="rounded-xl border border-[#e8e4de] bg-white p-5 mt-4 sm:mt-5">
           <div className="flex items-center justify-between mb-4 gap-3">
             <div>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-[#a8a29e]">Saved by Your Account</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-[#a8a29e]">All Cases</p>
               <p className="text-[12px] text-[#6b7280] mt-1">
                 {loadingCases
                   ? "Loading saved cases..."
                   : cases.length === 0
                     ? "No saved reports yet."
-                    : `${cases.length} report${cases.length === 1 ? "" : "s"} archived in your account.`}
+                    : `${cases.length} investigation report${cases.length === 1 ? "" : "s"} saved.`}
               </p>
             </div>
             <Link

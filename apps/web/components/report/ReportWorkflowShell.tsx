@@ -7,11 +7,15 @@ import { NCIIReportLayout } from "@/components/report/NCIIReportLayout";
 import { buildCaseRef, buildVerdict, buildVerdictColor } from "@/components/report/utils";
 import { useReportWorkflow } from "@/components/report/ReportWorkflowContext";
 
-function StepNav({ caseId }: { caseId: string }) {
+function StepNav({ caseId, isNcii }: { caseId: string; isNcii?: boolean }) {
   const pathname = usePathname();
 
   const steps = [
-    { id: "analysis", label: "Analyze Evidence", href: `/report/${caseId}/analysis` },
+    {
+      id: "analysis",
+      label: isNcii ? "Record Evidence" : "Analyze Evidence",
+      href: `/report/${caseId}/analysis`,
+    },
     { id: "distribution", label: "Trace Distribution", href: `/report/${caseId}/distribution` },
     { id: "takedown", label: "Execute Takedown", href: `/report/${caseId}/takedown` },
   ];
@@ -217,7 +221,7 @@ export function ReportWorkflowShell({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        <StepNav caseId={caseId} />
+        <StepNav caseId={caseId} isNcii={caseData.pipeline_type === "ncii"} />
 
         {children}
 

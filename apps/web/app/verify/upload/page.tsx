@@ -30,6 +30,8 @@ function UploadContent() {
   const [suspiciousPreview, setSuspiciousPreview] = useState<string | null>(null);
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [referencePreview, setReferencePreview] = useState<string | null>(null);
+  const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
+  const [evidencePreview, setEvidencePreview] = useState<string | null>(null);
   const [analysisStep, setAnalysisStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +63,20 @@ function UploadContent() {
     setReferencePreview(URL.createObjectURL(file));
   }
 
+  function handleEvidenceFile(file: File) {
+    if (!file.type.startsWith("image/")) {
+      setError("Please upload an image file for supporting evidence.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Evidence file must be under 10 MB.");
+      return;
+    }
+    setError(null);
+    setEvidenceFile(file);
+    setEvidencePreview(URL.createObjectURL(file));
+  }
+
   async function storePreview(src: string, key: string) {
     try {
       const canvas = document.createElement("canvas");
@@ -87,6 +103,7 @@ function UploadContent() {
     // Store image thumbnails for report page
     if (suspiciousPreview) await storePreview(suspiciousPreview, `sniffer_suspicious_${caseId}`);
     if (withReference && referencePreview) await storePreview(referencePreview, `sniffer_reference_${caseId}`);
+    if (evidencePreview) await storePreview(evidencePreview, `sniffer_evidence_${caseId}`);
 
     // Advance steps every 700ms
     const interval = setInterval(() => {
@@ -106,6 +123,9 @@ function UploadContent() {
       formData.append("suspicious_image", suspiciousFile);
       if (withReference && referenceFile) {
         formData.append("reference_image", referenceFile);
+      }
+      if (evidenceFile) {
+        formData.append("evidence_image", evidenceFile);
       }
 
       const [res] = await Promise.all([
@@ -192,6 +212,54 @@ function UploadContent() {
               onFile={handleSuspiciousFile}
               onClear={() => { setSuspiciousFile(null); setSuspiciousPreview(null); }}
             />
+
+            {/* Supporting Evidence upload */}
+            {suspiciousFile && (
+              <div className="mt-6 rounded-xl border border-[#e8e4de] bg-white p-5">
+                <p className="text-[11px] font-mono text-[#a8a29e] uppercase tracking-widest mb-1">
+                  Supporting Evidence <span className="text-[#c4bdb5]">— optional</span>
+                </p>
+                <p className="text-[12px] text-[#6b7280] mb-4 leading-relaxed">
+                  Upload a screenshot showing where this content appeared online (Telegram, social media, a website, etc.). 
+                  This helps identify where the content is spreading.
+                </p>
+                {evidenceFile ? (
+                  <div className="flex items-center gap-3 p-3 rounded-lg border border-[#e8e4de] bg-[#fafaf8]">
+                    {evidencePreview && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={evidencePreview} alt="Evidence" className="w-12 h-12 object-cover rounded" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-medium text-[#0a0a0a] truncate">{evidenceFile.name}</p>
+                      <p className="text-[11px] text-[#9ca3af]">Supporting evidence uploaded</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setEvidenceFile(null); setEvidencePreview(null); }}
+                      className="text-[11px] text-[#9ca3af] hover:text-red-500 transition-colors shrink-0"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-3 p-3 rounded-lg border border-dashed border-[#e8e4de] bg-[#fafaf8] cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-[#f0ede8] flex items-center justify-center shrink-0">
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M3 9l4-4 4 4 4-4 4 4" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <span className="text-[12px] text-[#6b7280]">Click to upload a screenshot or drag one here</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleEvidenceFile(f); }}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
 
             {error && (
               <div className="mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700">

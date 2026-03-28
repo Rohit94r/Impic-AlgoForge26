@@ -170,6 +170,47 @@ export function NCIIReportLayout({
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════════
+            SECTION 01b — EVIDENCE RECORDED CONFIRMATION
+        ══════════════════════════════════════════════════════════════════════ */}
+        <section>
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-5">
+            <div className="flex items-start gap-4">
+              <div className="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="16" height="16" fill="none" stroke="#059669" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-mono text-emerald-700 uppercase tracking-widest mb-1">
+                  Step 1 · Evidence Recorded
+                </p>
+                <p className="text-[14px] font-semibold text-emerald-900 mb-1">
+                  Your case has been created anonymously
+                </p>
+                <p className="text-[12.5px] text-emerald-800 leading-relaxed mb-3">
+                  Your evidence has been fingerprinted and a case reference has been issued. 
+                  No personally identifiable information is stored. You can use this reference in any legal correspondence.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <div>
+                    <p className="text-[9px] font-mono text-emerald-600 uppercase tracking-widest">Case Reference</p>
+                    <p className="text-[13px] font-mono font-semibold text-emerald-900">{buildCaseRef(caseId)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-mono text-emerald-600 uppercase tracking-widest">Recorded At</p>
+                    <p className="text-[13px] font-mono text-emerald-900">{new Date(caseData.created_at * 1000).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-mono text-emerald-600 uppercase tracking-widest">Pipeline</p>
+                    <p className="text-[13px] font-mono text-emerald-900">NCII Leak Discovery</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════
             SECTION 02 — SUBMITTED EVIDENCE
         ══════════════════════════════════════════════════════════════════════ */}
         <section>

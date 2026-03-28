@@ -175,4 +175,12 @@ export interface AnalysisResult {
   audit?: AuditTrail;
   c2pa_result?: C2paResult;
   ai_detection?: AiDetectionResult;
+  supporting_evidence?: {
+    sha256: string;
+    ela_mean_residual: number;
+    ela_flagged: boolean;
+    ela_heatmap?: string | null;
+    manipulation_note: string;
+    used_as: string;
+  } | null;
 }

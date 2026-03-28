@@ -209,3 +209,6 @@ class AnalysisResult(BaseModel):
 
     # Chain of custody
     audit: Optional[dict] = None
+
+    # Supporting evidence (optional screenshot analysis)
+    supporting_evidence: Optional[dict] = None

@@ -13,6 +13,7 @@ interface ReportWorkflowContextValue {
   analysis: AnalysisResult | null;
   suspiciousImg: string | null;
   referenceImg: string | null;
+  evidenceImg: string | null;
   loading: boolean;
   fetchError: string | null;
   hashCopied: boolean;
@@ -43,6 +44,7 @@ export function ReportWorkflowProvider({
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [suspiciousImg, setSuspiciousImg] = useState<string | null>(null);
   const [referenceImg, setReferenceImg] = useState<string | null>(null);
+  const [evidenceImg, setEvidenceImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [hashCopied, setHashCopied] = useState(false);
@@ -59,6 +61,7 @@ export function ReportWorkflowProvider({
 
     setSuspiciousImg(sessionStorage.getItem(`sniffer_suspicious_${caseId}`));
     setReferenceImg(sessionStorage.getItem(`sniffer_reference_${caseId}`));
+    setEvidenceImg(sessionStorage.getItem(`sniffer_evidence_${caseId}`));
 
     setLoading(true);
     setFetchError(null);
@@ -153,6 +156,7 @@ export function ReportWorkflowProvider({
       analysis,
       suspiciousImg,
       referenceImg,
+      evidenceImg,
       loading,
       fetchError,
       hashCopied,
@@ -172,6 +176,7 @@ export function ReportWorkflowProvider({
       analysis,
       suspiciousImg,
       referenceImg,
+      evidenceImg,
       loading,
       fetchError,
       hashCopied,

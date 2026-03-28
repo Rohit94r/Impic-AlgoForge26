@@ -17,7 +17,7 @@ import { TamperHeatmap } from "@/components/report/TamperHeatmap";
 import { C2PAProvenance } from "@/components/report/C2PAProvenance";
 
 export default function AnalysisStepPage() {
-  const { caseId, caseData, analysis, suspiciousImg, referenceImg } = useReportWorkflow();
+  const { caseId, caseData, analysis, suspiciousImg, referenceImg, evidenceImg } = useReportWorkflow();
   if (!caseData) return null;
 
   if (!analysis) {
@@ -110,6 +110,44 @@ export default function AnalysisStepPage() {
       )}
 
       <C2PAProvenance c2pa={analysis.c2pa_result} />
+
+      {analysis.supporting_evidence && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <p className="text-[10px] font-mono text-amber-700 uppercase tracking-widest mb-3">
+            Leak Evidence Analysis
+          </p>
+          <div className="flex gap-4 items-start">
+            {evidenceImg && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={evidenceImg}
+                alt="Supporting evidence"
+                className="w-20 h-20 object-cover rounded-lg border border-amber-200 shrink-0"
+              />
+            )}
+            <div className="flex-1 min-w-0 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border font-mono text-[9.5px] uppercase tracking-wider ${
+                    analysis.supporting_evidence.ela_flagged
+                      ? "bg-red-50 border-red-200 text-red-600"
+                      : "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  }`}
+                >
+                  {analysis.supporting_evidence.ela_flagged ? "Artifacts Detected" : "No Artifacts Detected"}
+                </span>
+              </div>
+              <p className="text-[12.5px] text-amber-900 leading-relaxed">
+                {analysis.supporting_evidence.manipulation_note}
+              </p>
+              <p className="text-[11px] text-amber-700 font-mono">
+                SHA-256: {analysis.supporting_evidence.sha256.slice(0, 20)}…
+              </p>
+              <p className="text-[11px] text-[#9ca3af]">{analysis.supporting_evidence.used_as}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-8 rounded-xl border border-[#e8e4de] bg-white px-5 py-4 print:hidden">
         <p className="text-[10px] font-mono text-[#a8a29e] uppercase tracking-widest mb-2">Next Step</p>
