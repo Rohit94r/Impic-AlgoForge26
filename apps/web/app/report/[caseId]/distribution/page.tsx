@@ -23,16 +23,19 @@ export default function DistributionStepPage() {
         <ContentTrace caseId={caseId} />
       </div>
 
-      <div className="mb-8 rounded-xl border border-[#e8e4de] bg-white px-5 py-4 print:hidden">
-        <p className="text-[10px] font-mono text-[#a8a29e] uppercase tracking-widest mb-2">Next Step</p>
-        <p className="text-[12.5px] text-[#374151] mb-3 leading-relaxed">
-          Use the distribution intelligence above to prepare platform-specific takedown actions.
-        </p>
+      <div className="mb-8 print:hidden">
         <Link
           href={`/report/${caseId}/takedown`}
-          className="inline-flex items-center gap-2 text-[12px] font-medium bg-[#0a0a0a] text-white px-4 py-2 rounded-lg hover:bg-[#1a1a1a] transition-colors"
+          className="flex items-center justify-between gap-4 w-full rounded-2xl border-2 border-[#0a0a0a] bg-[#0a0a0a] text-white px-6 py-4 hover:bg-[#1a1a1a] hover:border-[#1a1a1a] transition-all group"
         >
-          Execute Takedown →
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-white/50 mb-0.5">Step 3 of 3</p>
+            <p className="text-[15px] font-semibold">Execute Takedown →</p>
+            <p className="text-[12px] text-white/60 mt-0.5">Generate DMCA notices and platform-specific removal requests</p>
+          </div>
+          <svg width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24" className="shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+            <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </Link>
       </div>
     </>
