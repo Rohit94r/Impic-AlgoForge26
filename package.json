@@ -4,10 +4,19 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @impic-algoforge26/web dev",
+    "dev:services": "concurrently --names \"analysis,intel,takedown\" --prefix-colors \"green,yellow,magenta\" \"pnpm --filter @sniffer/analysis dev\" \"pnpm --filter @sniffer/intelligence dev\" \"pnpm --filter @sniffer/takedown dev\"",
+    "dev:web": "pnpm --filter @impic-algoforge26/web dev",
+    "dev:api": "pnpm --filter @sniffer/analysis dev",
+    "dev:intel": "pnpm --filter @sniffer/intelligence dev",
+    "dev:takedown": "pnpm --filter @sniffer/takedown dev",
     "build": "pnpm --filter @impic-algoforge26/web build",
     "start": "pnpm --filter @impic-algoforge26/web start",
     "lint": "pnpm --filter @impic-algoforge26/web lint",
     "format": "pnpm --filter @impic-algoforge26/web format",
-    "typecheck": "pnpm --filter @impic-algoforge26/web typecheck"
+    "typecheck": "pnpm --filter @impic-algoforge26/web typecheck",
+    "install:py": "pnpm --filter @sniffer/analysis install:py && pnpm --filter @sniffer/intelligence install:py && pnpm --filter @sniffer/takedown install:py"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
