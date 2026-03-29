@@ -128,81 +128,44 @@ export function ReportWorkflowShell({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#fafaf8] print:bg-white">
-      <header className="border-b border-[#e8e4de] px-6 py-4 flex items-center gap-3 bg-white print:hidden sticky top-0 z-10">
-        <Link
-          href="/"
-          className="font-mono text-[13px] text-[#0a0a0a] tracking-widest uppercase hover:opacity-70 transition-opacity"
-        >
+      {/* Sticky top nav */}
+      <header className="border-b border-[#e8e4de] px-6 py-3.5 flex items-center gap-3 bg-white/95 backdrop-blur-sm print:hidden sticky top-0 z-10">
+        <Link href="/" className="font-mono text-[13px] text-[#0a0a0a] tracking-widest uppercase hover:opacity-70 transition-opacity">
           Sniffer
         </Link>
         <span className="text-[#d4cfc9]">/</span>
-        <span className="text-[13px] text-[#9ca3af]">Deepfake Forensic Report</span>
-        <div className="ml-auto hidden sm:flex items-center gap-2">
+        <span className="text-[13px] text-[#9ca3af]">Forensic Report</span>
+        <span className="font-mono text-[11px] text-[#c4bdb5] ml-1">· {caseRef}</span>
+        <div className="ml-auto flex items-center gap-2">
+          {isCaseSaved ? (
+            <Link href="/dashboard" className="text-[12px] text-emerald-700 font-medium border border-emerald-200 bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors">
+              ✓ Saved · View dashboard
+            </Link>
+          ) : (
+            <button
+              onClick={handleSaveCase}
+              disabled={isSaving}
+              className="text-[12px] text-[#6b7280] hover:text-[#0a0a0a] border border-[#e8e4de] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {isSaving ? "Saving…" : "Save case"}
+            </button>
+          )}
           <button
             onClick={copyHash}
             className="text-[12px] text-[#6b7280] hover:text-[#0a0a0a] border border-[#e8e4de] px-3 py-1.5 rounded-lg transition-colors"
           >
-            {hashCopied ? "Copied!" : "Copy Hash"}
+            {hashCopied ? "✓ Copied" : "Copy hash"}
           </button>
           <button
             onClick={() => window.print()}
             className="text-[12px] font-medium bg-[#0a0a0a] text-white px-4 py-1.5 rounded-full hover:bg-[#1a1a1a] transition-colors"
           >
-            Download Report
+            Download PDF
           </button>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 print:py-6 print:px-10">
-        {isCaseSaved ? (
-          <div className="mb-6 flex items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50">
-            <p className="text-[12.5px] text-emerald-800 font-medium">Report saved to your account</p>
-            <Link href="/dashboard" className="ml-auto text-[12px] text-emerald-700 hover:underline shrink-0">
-              View dashboard →
-            </Link>
-          </div>
-        ) : (
-          <div className="mb-6 rounded-xl border border-[#e8e4de] bg-white overflow-hidden print:hidden">
-            <div className="px-5 py-4">
-              {saveSent ? (
-                <p className="text-[12.5px] text-[#374151]">Magic link sent to {saveEmail}. Check your inbox.</p>
-              ) : sessionUserId ? (
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[13px] font-semibold text-[#0a0a0a]">Save this report</p>
-                    <p className="text-[12px] text-[#6b7280]">Track this case in your account dashboard.</p>
-                  </div>
-                  <button
-                    onClick={handleSaveCase}
-                    disabled={isSaving}
-                    className="text-[12px] font-medium bg-[#0a0a0a] text-white px-4 py-2 rounded-lg hover:bg-[#1a1a1a] transition-colors disabled:opacity-60"
-                  >
-                    {isSaving ? "Saving…" : "Save"}
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSendMagicLink} className="flex gap-2">
-                  <input
-                    type="email"
-                    value={saveEmail}
-                    onChange={(e) => setSaveEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    className="flex-1 rounded-lg border border-[#e8e4de] bg-[#fafaf8] px-3.5 py-2 text-[12.5px]"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!saveEmail.trim() || isSaving}
-                    className="text-[12px] font-medium bg-[#0a0a0a] text-white px-4 py-2 rounded-lg hover:bg-[#1a1a1a] transition-colors disabled:opacity-40"
-                  >
-                    {isSaving ? "Sending…" : "Save report"}
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-        )}
-
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 print:py-6 print:px-10">
         <CaseHeader
           caseRef={caseRef}
           verdict={verdict}
@@ -212,34 +175,17 @@ export function ReportWorkflowShell({ children }: { children: React.ReactNode })
           tamperRegionCount={analysis?.tamper_regions?.length}
         />
 
-        {!analysis && (
-          <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <p className="text-[10px] font-mono text-amber-700 uppercase tracking-widest mb-1">Case Opened · Partial Data</p>
-            <p className="text-[12.5px] text-amber-800 leading-relaxed">
-              This case exists in the database, but forensic analysis output is not attached yet. Distribution and takedown steps remain available.
-            </p>
-          </div>
-        )}
-
         <StepNav caseId={caseId} isNcii={caseData.pipeline_type === "ncii"} />
 
         {children}
 
-        <div className="border-t border-[#e8e4de] pt-6 flex items-center justify-between print:border-[#0a0a0a]">
-          <div>
-            <p className="font-mono text-[10px] text-[#a8a29e] tracking-widest">SNIFFER · IMPIC LABS · 2026</p>
-            <p className="font-mono text-[9px] text-[#c4bdb5] mt-0.5">
-              This report is generated automatically and does not constitute legal advice.
-            </p>
-          </div>
+        <div className="border-t border-[#e8e4de] pt-5 mt-4 flex items-center justify-between print:border-[#0a0a0a]">
+          <p className="font-mono text-[10px] text-[#c4bdb5] tracking-widest">SNIFFER · IMPIC LABS · 2026</p>
           <div className="flex gap-4 print:hidden">
             <Link href="/start" className="text-[12px] text-indigo-600 hover:underline">
               New Investigation
             </Link>
-            <button
-              onClick={() => window.print()}
-              className="text-[12px] text-[#6b7280] hover:text-[#0a0a0a] transition-colors"
-            >
+            <button onClick={() => window.print()} className="text-[12px] text-[#6b7280] hover:text-[#0a0a0a] transition-colors">
               Print Report
             </button>
           </div>

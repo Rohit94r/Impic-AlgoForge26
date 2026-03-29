@@ -1,6 +1,30 @@
 "use client";
 
+import Image from "next/image";
 import type { C2paResult } from "./types";
+
+const GEMINI_LOGO = { src: "/c2pa-logos/gemini-color.png", alt: "Google / Gemini" };
+const OPENAI_LOGO = { src: "/c2pa-logos/openai.png", alt: "OpenAI" };
+
+// Keywords that map to a logo — checked against generator_tool, issuer, and issuer_org
+const LOGO_KEYWORDS: Array<{ keywords: string[]; logo: typeof GEMINI_LOGO }> = [
+  { keywords: ["gemini", "google", "c2pa core generator"], logo: GEMINI_LOGO },
+  { keywords: ["openai", "gpt", "dall-e", "sora", "chatgpt"], logo: OPENAI_LOGO },
+];
+
+function resolveLogo(c2pa: C2paResult | undefined) {
+  if (!c2pa) return null;
+  const haystack = [
+    c2pa.generator_tool ?? "",
+    c2pa.issuer ?? "",
+    c2pa.issuer_org ?? "",
+  ].join(" ").toLowerCase();
+
+  for (const { keywords, logo } of LOGO_KEYWORDS) {
+    if (keywords.some((k) => haystack.includes(k))) return logo;
+  }
+  return null;
+}
 
 interface Props {
   c2pa: C2paResult | undefined;
@@ -73,6 +97,7 @@ function formatSigningTime(iso: string): string {
 export function C2PAProvenance({ c2pa }: Props) {
   const status = (c2pa?.status ?? "not_present") as keyof typeof STATUS_CONFIG;
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.not_present;
+  const logo = resolveLogo(c2pa);
 
   return (
     <section className="mb-8">
@@ -84,7 +109,9 @@ export function C2PAProvenance({ c2pa }: Props) {
 
         {/* ── Status header ── */}
         <div className="px-4 py-3 flex items-center gap-3 border-b border-[#f0ede8]">
-          {cfg.icon}
+          {logo ? (
+            <Image src={logo.src} alt={logo.alt} width={16} height={16} className="rounded shrink-0 object-contain" />
+          ) : cfg.icon}
           <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${cfg.badge}`}>
             {cfg.label}
           </span>
@@ -112,9 +139,14 @@ export function C2PAProvenance({ c2pa }: Props) {
               {c2pa.issuer && (
                 <div className="px-4 py-3 min-w-0">
                   <p className="text-[10px] font-mono text-[#9ca3af] uppercase tracking-widest mb-1">Signed by</p>
-                  <p className="text-[12.5px] text-[#0a0a0a] font-medium truncate" title={c2pa.issuer}>
-                    {c2pa.issuer}
-                  </p>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {logo && (
+                      <Image src={logo.src} alt={logo.alt} width={14} height={14} className="rounded shrink-0 object-contain opacity-80" />
+                    )}
+                    <p className="text-[12.5px] text-[#0a0a0a] font-medium truncate" title={c2pa.issuer}>
+                      {c2pa.issuer}
+                    </p>
+                  </div>
                   {c2pa.issuer_org && c2pa.issuer_org !== c2pa.issuer && (
                     <p className="text-[11px] text-[#9ca3af] mt-0.5">{c2pa.issuer_org}</p>
                   )}
@@ -123,9 +155,20 @@ export function C2PAProvenance({ c2pa }: Props) {
               {c2pa.generator_tool && (
                 <div className="px-4 py-3 min-w-0">
                   <p className="text-[10px] font-mono text-[#9ca3af] uppercase tracking-widest mb-1">Origin Tool</p>
-                  <p className="text-[12.5px] text-[#0a0a0a] font-medium truncate" title={c2pa.generator_tool}>
-                    {c2pa.generator_tool}
-                  </p>
+                  <div className="flex items-center gap-2 min-w-0">
+                    {logo && (
+                      <Image
+                        src={logo.src}
+                        alt={logo.alt}
+                        width={18}
+                        height={18}
+                        className="rounded shrink-0 object-contain"
+                      />
+                    )}
+                    <p className="text-[12.5px] text-[#0a0a0a] font-medium truncate" title={c2pa.generator_tool}>
+                      {c2pa.generator_tool}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -141,11 +184,15 @@ export function C2PAProvenance({ c2pa }: Props) {
             {c2pa.ai_generated && (
               <div className="px-4 py-3 border-b border-[#f0ede8] bg-amber-50">
                 <div className="flex items-start gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600 mt-0.5 shrink-0">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                    <line x1="12" y1="9" x2="12" y2="13" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                  </svg>
+                  {logo ? (
+                    <Image src={logo.src} alt={logo.alt} width={16} height={16} className="rounded shrink-0 object-contain mt-0.5" />
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600 mt-0.5 shrink-0">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                  )}
                   <div>
                     <p className="text-[12px] font-semibold text-amber-800">AI-Generated Content Declared</p>
                     <p className="text-[11px] text-amber-700 mt-0.5">
