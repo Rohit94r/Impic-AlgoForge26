@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Check, Search, Database, Shield, FileText, Fingerprint, Loader2 } from 'lucide-react';
 
 interface AnalysisLoaderProps {
@@ -17,11 +17,33 @@ const STEPS = [
   { id: 'report', label: 'Generating forensic report', icon: Shield },
 ];
 
+const DATA_DOTS = [
+  { left: '18%', top: '21%' },
+  { left: '24%', top: '35%' },
+  { left: '29%', top: '57%' },
+  { left: '35%', top: '28%' },
+  { left: '39%', top: '48%' },
+  { left: '42%', top: '68%' },
+  { left: '48%', top: '18%' },
+  { left: '52%', top: '38%' },
+  { left: '57%', top: '59%' },
+  { left: '61%', top: '26%' },
+  { left: '66%', top: '43%' },
+  { left: '71%', top: '63%' },
+  { left: '76%', top: '30%' },
+  { left: '81%', top: '49%' },
+  { left: '84%', top: '72%' },
+  { left: '22%', top: '75%' },
+  { left: '31%', top: '15%' },
+  { left: '47%', top: '78%' },
+  { left: '63%', top: '14%' },
+  { left: '74%', top: '83%' },
+];
+
 export const AnalysisLoader: React.FC<AnalysisLoaderProps> = ({ 
   image = "", 
   onComplete 
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -40,13 +62,7 @@ export const AnalysisLoader: React.FC<AnalysisLoaderProps> = ({
     return () => clearInterval(interval);
   }, [onComplete]);
 
-  useEffect(() => {
-    const stepProgress = 100 / STEPS.length;
-    const newStep = Math.min(Math.floor(progress / stepProgress), STEPS.length - 1);
-    if (newStep !== currentStep) {
-      setCurrentStep(newStep);
-    }
-  }, [progress, currentStep]);
+  const currentStep = Math.min(Math.floor(progress / (100 / STEPS.length)), STEPS.length - 1);
 
   return (
     <div className="fixed inset-0 z-[100] bg-[#fafaf8] flex flex-col overflow-hidden text-[#0a0a0a]">
@@ -89,13 +105,13 @@ export const AnalysisLoader: React.FC<AnalysisLoaderProps> = ({
                 
                 {/* Randomly Pulsing Data Landmarks */}
                 <div className="absolute inset-0 z-20">
-                  {[...Array(20)].map((_, i) => (
+                  {DATA_DOTS.map((dot, i) => (
                     <motion.div
                       key={`data-dot-${i}`}
                       className="absolute w-1.5 h-1.5 bg-[#0a0a0a]/30 rounded-full"
                       style={{ 
-                        left: `${15 + Math.random() * 70}%`, 
-                        top: `${15 + Math.random() * 70}%` 
+                        left: dot.left,
+                        top: dot.top,
                       }}
                       animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.4, 0.1] }}
                       transition={{ duration: 4, repeat: Infinity, delay: i * 0.1 }}
